@@ -1,25 +1,34 @@
 #!/bin/bash
 
-# Cargar funciones de los integrantes
-directorio=$(cd "$(dirname "$0")" && pwd)
+# Validar la cantidad de argumentos
+if [ "$#" -eq 0 ]; then
+    echo "Error: debes indicar la palabra que deseas buscar."
+    exit 1
+fi
 
-source "$directorio/validacion.sh"
-source "$directorio/busqueda.sh"
-source "$directorio/resultados.sh"
+if [ "$#" -gt 2 ]; then
+    echo "Error: solo se permiten dos argumentos como maximo."
+    exit 1
+fi
 
-# Solicitar la ruta
-read -r -p "Ingresa la ruta de la carpeta: " carpeta
+# Obtener la palabra a buscar
+palabra="$1"
 
-# Validar la carpeta
-validar_carpeta "$carpeta" || exit 1
+# Obtener la trayectoria o buscar desde la raiz
+if [ "$#" -eq 2 ]; then
+    carpeta="$2"
+else
+    carpeta="/"
+fi
 
-# Convertir la ruta a una ruta absoluta
+# Validar que la trayectoria exista
+if [ ! -d "$carpeta" ]; then
+    echo "Error: la trayectoria indicada no existe o no es una carpeta."
+    exit 1
+fi
+
+# Convertir a trayectoria absoluta
 carpeta=$(cd "$carpeta" && pwd -P)
 
-# Buscar la palabra home
-resultados=()
-buscar_archivos "$carpeta"
-
-# Mostrar resultados
-mostrar_resultados
-
+# Buscar la palabra en los archivos
+find "$carpeta" -type f -exec grep -IlF -- "$palabra" {} + 2>/dev/null
