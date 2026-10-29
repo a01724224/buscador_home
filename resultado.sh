@@ -5,7 +5,7 @@ mostrar_resultados() {
     local total=${#resultados[@]}
 
     echo "--------------------------------"
-    echo "Resultados de busqueda: home"
+    echo "Resultados de busqueda: $palabra"
     echo "--------------------------------"
 
     for archivo in "${resultados[@]}"; do
