@@ -30,5 +30,13 @@ fi
 # Convertir a trayectoria absoluta
 carpeta=$(cd "$carpeta" && pwd -P)
 
-# Buscar la palabra en los archivos
-find "$carpeta" -type f -exec grep -IlF -- "$palabra" {} + 2>/dev/null
+# Buscar la palabra y guardar las ubicaciones
+resultados=$(find "$carpeta" -type f -exec grep -IlF -- "$palabra" {} + 2>/dev/null)
+
+# Mostrar los resultados
+if [ -n "$resultados" ]; then
+    echo "Archivos encontrados:"
+    printf '%s\n' "$resultados"
+else
+    echo "No se encontraron archivos con la palabra: $palabra"
+fi
