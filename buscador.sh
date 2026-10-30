@@ -1,25 +1,31 @@
 #!/bin/bash
 
-# Cargar funciones de los integrantes
-directorio=$(cd "$(dirname "$0")" && pwd)
+# Validar los argumentos
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+    echo "Uso: $0 palabra [carpeta]"
+    exit 1
+fi
 
-source "$directorio/validacion.sh"
-source "$directorio/busqueda.sh"
-source "$directorio/resultados.sh"
+palabra="$1"
+carpeta="${2:-/}"
 
-# Solicitar la ruta
-read -r -p "Ingresa la ruta de la carpeta: " carpeta
+# Validar la trayectoria
+if [ ! -d "$carpeta" ]; then
+    echo "Error: la carpeta no existe."
+    exit 1
+fi
 
-# Validar la carpeta
-validar_carpeta "$carpeta" || exit 1
+# Convertir a trayectoria absoluta
+carpeta=$(cd "$carpeta" && pwd -P) || exit 1
 
-# Convertir la ruta a una ruta absoluta
-carpeta=$(cd "$carpeta" && pwd -P)
-
-# Buscar la palabra home
-resultados=()
-buscar_archivos "$carpeta"
+# Buscar la palabra dentro de los archivos
+resultados=$(find "$carpeta" -type f \
+    -exec grep -IlF -- "$palabra" {} + 2>/dev/null)
 
 # Mostrar resultados
-mostrar_resultados
-
+if [ -n "$resultados" ]; then
+    echo "Archivos encontrados:"
+    printf '%s\n' "$resultados"
+else
+    echo "No se encontraron archivos con la palabra: $palabra"
+fi
